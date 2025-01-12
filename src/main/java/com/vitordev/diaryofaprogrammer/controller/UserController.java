@@ -2,8 +2,8 @@ package com.vitordev.diaryofaprogrammer.controller;
 
 import com.vitordev.diaryofaprogrammer.domain.Post;
 import com.vitordev.diaryofaprogrammer.domain.User;
-import com.vitordev.diaryofaprogrammer.dto.PostDTO;
 import com.vitordev.diaryofaprogrammer.dto.UserDTO;
+import com.vitordev.diaryofaprogrammer.service.TokenService;
 import com.vitordev.diaryofaprogrammer.service.UserServices;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,9 @@ public class UserController {
 
     @Autowired
     private UserServices userServices;
+
+    @Autowired
+    private TokenService tokenService;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> findUsers() {
@@ -53,14 +56,6 @@ public class UserController {
             throw new ObjectNotFoundException("user without posts");
         }
         return ResponseEntity.ok().body(posts);
-    }
-
-    @PostMapping
-    public ResponseEntity<Void> insertUser(@RequestBody User user) {
-        user.setCreatedAt(new Date());
-        user = userServices.insert(user);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(uri).build();
     }
 
     @DeleteMapping(value = "/{id}")

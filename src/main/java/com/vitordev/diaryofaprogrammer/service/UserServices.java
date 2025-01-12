@@ -31,6 +31,10 @@ public class UserServices {
         return userRepository.findByNameContainingIgnoreCase(name);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmailIgnoreCase(email);
+    }
+
     public User insert(User user) {
         return userRepository.save(user);
     }
