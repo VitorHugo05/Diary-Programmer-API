@@ -1,12 +1,11 @@
 package com.vitordev.diaryofaprogrammer.domain;
 
-import com.vitordev.diaryofaprogrammer.dto.PostDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -32,19 +31,22 @@ public class User implements Serializable {
     private String email;
     private String password;
     private Date createdAt;
+    private Integer likes;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date birthdate;
 
     @DBRef(lazy = true)
     private List<Post> posts = new ArrayList<>();
 
-    public User(String id, String name, String email, String password, Date createdAt, Date birthdate) {
+    public User(String id, String name, String email, String password, Date birthdate, Date createdAt, Integer likes) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.birthdate = birthdate;
+        this.likes = likes;
     }
 
     @Override

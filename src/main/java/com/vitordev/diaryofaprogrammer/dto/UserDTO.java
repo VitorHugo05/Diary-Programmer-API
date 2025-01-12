@@ -25,6 +25,7 @@ public class UserDTO implements Serializable {
     private String email;
     private Date createdAt;
     private Date birthdate;
+    private Integer likes;
 
     private List<String> posts = new ArrayList<>();
 
@@ -34,6 +35,7 @@ public class UserDTO implements Serializable {
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
         this.birthdate = user.getBirthdate();
+        this.likes = user.getLikes();
         this.posts = user.getPosts().stream()
                 .map(Post::getId)
                 .collect(Collectors.toList());

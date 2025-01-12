@@ -2,6 +2,7 @@ package com.vitordev.diaryofaprogrammer.controller;
 
 import com.vitordev.diaryofaprogrammer.domain.Post;
 import com.vitordev.diaryofaprogrammer.service.PostService;
+import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/posts")
+@RequestMapping(value = "/api/posts")
 public class PostController {
     @Autowired
     private PostService postService;
@@ -23,9 +24,18 @@ public class PostController {
         return ResponseEntity.ok().body(posts);
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/id/{id}")
     public ResponseEntity<Post> findPostById(@PathVariable String id) {
         Post post = postService.findById(id);
         return ResponseEntity.ok().body(post);
+    }
+
+    @GetMapping(value = "/title/{title}")
+    public ResponseEntity<List<Post>> findPostByTitle(@PathVariable String title) {
+        List<Post> posts = postService.findByTitle(title);
+        if(posts.isEmpty()) {
+            throw new ObjectNotFoundException("Post not found");
+        }
+        return ResponseEntity.ok().body(posts);
     }
 }
