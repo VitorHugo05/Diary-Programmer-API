@@ -2,6 +2,7 @@ package com.vitordev.diaryofaprogrammer.controller;
 
 import com.vitordev.diaryofaprogrammer.domain.Post;
 import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.dto.PostDTO;
 import com.vitordev.diaryofaprogrammer.dto.UserDTO;
 import com.vitordev.diaryofaprogrammer.service.TokenService;
 import com.vitordev.diaryofaprogrammer.service.UserServices;
@@ -9,10 +10,7 @@ import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundExceptio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,13 +26,19 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDTO>> findUsers() {
         List<User> list = userServices.findAll();
+        if (list.isEmpty()) {
+            throw new ObjectNotFoundException("User not found");
+        }
         List<UserDTO> listDto = list.stream().map(UserDTO::new).toList();
         return ResponseEntity.ok().body(listDto);
     }
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> findUserById(@PathVariable String id) {
-        User user = userServices.findById(id);
+    @GetMapping(value = "/{userId}")
+    public ResponseEntity<UserDTO> findUserById(@PathVariable String userId) {
+        User user = userServices.findById(userId);
+        if (user == null) {
+            throw new ObjectNotFoundException("User not found");
+        }
         return ResponseEntity.ok().body(new UserDTO(user));
     }
 
@@ -48,29 +52,37 @@ public class UserController {
         return ResponseEntity.ok().body(listDto);
     }
 
-    @GetMapping(value = "/{id}/posts")
-    public ResponseEntity<List<Post>> findPostsByUser(@PathVariable String id) {
-        User user = userServices.findById(id);
+    @GetMapping(value = "/{userId}/posts")
+    public ResponseEntity<List<PostDTO>> findPostsByUser(@PathVariable String userId) {
+        User user = userServices.findById(userId);
         List<Post> posts = user.getPosts();
         if(posts.isEmpty()) {
             throw new ObjectNotFoundException("user without posts");
         }
-        return ResponseEntity.ok().body(posts);
+        List<PostDTO> postDTO = posts.stream().map(PostDTO::new).toList();
+        return ResponseEntity.ok().body(postDTO);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        userServices.delete(id);
+    @DeleteMapping(value = "/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+        userServices.delete(userId);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> updateData(@PathVariable String id, @RequestBody User user) {
-        User oldUser = userServices.findById(id);
-        UserDTO userDTO = userServices.updateData(oldUser, user);
-        user = userServices.fromDTO(userDTO);
-        user.setId(id);
-        User newUser = userServices.update(user);
-        return ResponseEntity.ok().body(new UserDTO(newUser));
+    @PutMapping(value = "/{userId}")
+    public ResponseEntity<UserDTO> updateData(@PathVariable String userId, @RequestBody UserDTO userDto) {
+        userServices.validateUserDTOFields(userDto);
+
+        User oldUser = userServices.findById(userId);
+        if(oldUser == null) {
+            throw new ObjectNotFoundException("User not found");
+        }
+
+        userDto.setUserId(oldUser.getUserId());
+        User newUser = userServices.fromDTO(userDto);
+        userServices.updateData(oldUser, newUser);
+        User user = userServices.save(newUser);
+
+        return ResponseEntity.ok().body(new UserDTO(user));
     }
 }

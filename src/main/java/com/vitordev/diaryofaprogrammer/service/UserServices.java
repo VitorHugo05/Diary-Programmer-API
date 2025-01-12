@@ -2,8 +2,10 @@ package com.vitordev.diaryofaprogrammer.service;
 
 import com.vitordev.diaryofaprogrammer.domain.Post;
 import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.dto.ResponseLoginDTO;
 import com.vitordev.diaryofaprogrammer.dto.UserDTO;
 import com.vitordev.diaryofaprogrammer.repository.UserRepository;
+import com.vitordev.diaryofaprogrammer.service.exceptions.MissingFieldException;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class UserServices {
         return userRepository.findByEmailIgnoreCase(email);
     }
 
-    public User insert(User user) {
+    public User save(User user) {
         return userRepository.save(user);
     }
 
@@ -43,11 +45,7 @@ public class UserServices {
         userRepository.deleteById(id);
     }
 
-    public User update(User user) {
-        return userRepository.save(user);
-    }
-
-    public UserDTO updateData(User oldUser, User user) {
+    public void updateData(User oldUser, User user) {
         UserDTO userDTO = new UserDTO();
 
         if (user.getName() != null && !user.getName().equals(oldUser.getName())) {
@@ -74,10 +72,9 @@ public class UserServices {
             userDTO.setLikes(oldUser.getLikes());
         }
 
-        userDTO.setId(oldUser.getId());
+        userDTO.setUserId(oldUser.getUserId());
         userDTO.setCreatedAt(oldUser.getCreatedAt());
-        userDTO.setPosts(oldUser.getPosts().stream().map(Post::getId).collect(Collectors.toList()));
-        return userDTO;
+        userDTO.setPosts(oldUser.getPosts().stream().map(Post::getPostId).collect(Collectors.toList()));
     }
 
     public User fromDTO(UserDTO userDTO) {
@@ -101,14 +98,81 @@ public class UserServices {
         }
 
         user.setCreatedAt(userDTO.getCreatedAt());
-        user.setId(userDTO.getId());
+        user.setUserId(userDTO.getUserId());
         user.setPosts(userDTO.getPosts().stream().map(postId -> {
             Post post = new Post();
-            post.setId(postId);
+            post.setPostId(postId);
             return post;
         }).collect(Collectors.toList()));
 
         return user;
     }
 
+    public void validateRegisterFields(User user) {
+        if (user == null) {
+            throw new MissingFieldException("O objeto não pode ser nulo.");
+        }
+
+        if (user.getName() == null || user.getName().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'name' é obrigatório e não pode estar vazio.");
+        }
+
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'email' é obrigatório e não pode estar vazio.");
+        }
+
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'password' é obrigatório e não pode estar vazio.");
+        }
+
+        if (user.getBirthdate() == null) {
+            throw new MissingFieldException("O campo 'birthdate' é obrigatório.");
+        }
+    }
+
+    public void validateLoginFields(ResponseLoginDTO user) {
+        if (user == null) {
+            throw new MissingFieldException("O objeto não pode ser nulo.");
+        }
+
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'email' é obrigatório e não pode estar vazio.");
+        }
+
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'password' é obrigatório e não pode estar vazio.");
+        }
+    }
+
+    public void validateUserDTOFields(UserDTO user) {
+        if (user == null) {
+            throw new MissingFieldException("O objeto 'UserDTO' não pode ser nulo.");
+        }
+
+        if (user.getName() == null || user.getName().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'name' é obrigatório e não pode estar vazio.");
+        }
+
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new MissingFieldException("O campo 'email' é obrigatório e não pode estar vazio.");
+        }
+
+        if (user.getCreatedAt() == null) {
+            throw new MissingFieldException("O campo 'createdAt' é obrigatório.");
+        }
+
+        if (user.getBirthdate() == null) {
+            throw new MissingFieldException("O campo 'birthdate' é obrigatório.");
+        }
+
+        if (user.getLikes() == null) {
+            throw new MissingFieldException("O campo 'likes' é obrigatório e deve ser informado.");
+        }
+
+        if (user.getPosts() == null) {
+            throw new MissingFieldException("A lista 'posts' é obrigatória e não pode ser nula.");
+        }
+    }
 }
+
+

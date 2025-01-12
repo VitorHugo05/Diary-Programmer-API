@@ -9,9 +9,7 @@ import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundExceptio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.Date;
 
 @RestController
@@ -26,14 +24,21 @@ public class AuthController {
 
     @PostMapping(value = "/register")
     public ResponseEntity<ResponseRegisterDTO> register(@RequestBody User user) {
+
+        userServices.validateRegisterFields(user);
+
         user.setCreatedAt(new Date());
-        user = userServices.insert(user);
+        user = userServices.save(user);
+
         String token = tokenService.generateToken(user);
-        return ResponseEntity.ok().body(new ResponseRegisterDTO(user.getId(), token));
+        return ResponseEntity.ok().body(new ResponseRegisterDTO(user.getUserId(), token));
     }
 
     @PostMapping(value = "/login")
     public ResponseEntity<ResponseRegisterDTO> login(@RequestBody ResponseLoginDTO body) {
+
+        userServices.validateLoginFields(body);
+
         User user = userServices.findByEmail(body.getEmail()).orElseThrow(() -> new ObjectNotFoundException("Usuario não encontrado"));
         if(body.getPassword().equals(user.getPassword())) {
             String token = this.tokenService.generateToken(user);

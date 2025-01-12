@@ -20,7 +20,7 @@ public class AuthorDTO implements Serializable {
     private String name;
 
     public AuthorDTO(User user) {
-        this.id = user.getId();
+        this.id = user.getUserId();
         this.name = user.getName();
     }
 }

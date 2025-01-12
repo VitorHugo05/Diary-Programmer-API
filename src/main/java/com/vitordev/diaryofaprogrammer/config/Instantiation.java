@@ -3,6 +3,7 @@ package com.vitordev.diaryofaprogrammer.config;
 import com.vitordev.diaryofaprogrammer.domain.Post;
 import com.vitordev.diaryofaprogrammer.domain.User;
 import com.vitordev.diaryofaprogrammer.dto.AuthorDTO;
+import com.vitordev.diaryofaprogrammer.dto.CommentDTO;
 import com.vitordev.diaryofaprogrammer.repository.PostRepository;
 import com.vitordev.diaryofaprogrammer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,15 @@ public class Instantiation implements CommandLineRunner {
 
         userRepository.saveAll(Arrays.asList(u1, u2, u3));
 
-        Post p1 = new Post(null, "Os impactos da IA", "Texto de conteudo", sdf.parse("12/03/2024"), 12, new AuthorDTO(u1));
-        Post p2 = new Post(null, "A revolução da tecnologia", "Texto sobre os avanços tecnológicos.", sdf.parse("25/05/2023"), 20, new AuthorDTO(u1));
-        Post p3 = new Post(null, "Sustentabilidade no século XXI", "Discussão sobre práticas sustentáveis.", sdf.parse("10/08/2024"), 15, new AuthorDTO(u1));
+        Post p1 = new Post(null, "Os impactos da IA", "Texto de conteudo", sdf.parse("12/03/2024"), new AuthorDTO(u1));
+        Post p2 = new Post(null, "A revolução da tecnologia", "Texto sobre os avanços tecnológicos.", sdf.parse("25/05/2023"), new AuthorDTO(u1));
+        Post p3 = new Post(null, "Sustentabilidade no século XXI", "Discussão sobre práticas sustentáveis.", sdf.parse("10/08/2024"), new AuthorDTO(u1));
+
+        CommentDTO c1 = new CommentDTO("Que post maneiro!", new Date(), new AuthorDTO(u1));
+        CommentDTO c2 = new CommentDTO("Muito interessante, parabéns!", new Date(), new AuthorDTO(u1));
+        CommentDTO c3 = new CommentDTO("Adorei o conteúdo, vou compartilhar!", new Date(), new AuthorDTO(u1));
+
+        p1.getComments().addAll(Arrays.asList(c1, c2, c3));
 
         postRepository.saveAll(Arrays.asList(p1, p2, p3));
 

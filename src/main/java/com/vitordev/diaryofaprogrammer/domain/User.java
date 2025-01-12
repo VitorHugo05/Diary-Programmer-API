@@ -26,7 +26,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    private String id;
+    private String userId;
     private String name;
     private String email;
     private String password;
@@ -39,8 +39,8 @@ public class User implements Serializable {
     @DBRef(lazy = true)
     private List<Post> posts = new ArrayList<>();
 
-    public User(String id, String name, String email, String password, Date birthdate, Date createdAt, Integer likes) {
-        this.id = id;
+    public User(String userId, String name, String email, String password, Date birthdate, Date createdAt, Integer likes) {
+        this.userId = userId;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -53,11 +53,11 @@ public class User implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id);
+        return Objects.equals(userId, user.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(userId);
     }
 }

@@ -20,7 +20,7 @@ public class UserDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    private String userId;
     private String name;
     private String email;
     private Date createdAt;
@@ -30,15 +30,14 @@ public class UserDTO implements Serializable {
     private List<String> posts = new ArrayList<>();
 
     public UserDTO(User user) {
-        this.id = user.getId();
+        this.userId = user.getUserId();
         this.name = user.getName();
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
         this.birthdate = user.getBirthdate();
         this.likes = user.getLikes();
         this.posts = user.getPosts().stream()
-                .map(Post::getId)
+                .map(Post::getPostId)
                 .collect(Collectors.toList());
     }
-
 }

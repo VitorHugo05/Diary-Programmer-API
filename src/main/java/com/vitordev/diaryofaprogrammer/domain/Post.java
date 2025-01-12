@@ -26,22 +26,21 @@ public class Post implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    private String id;
+    private String postId;
     private String title;
     private String content;
     private Date createdAt;
-    private Integer likes;
+    private List<String> likedUsers = new ArrayList<>();
 
     private AuthorDTO author;
 
     private List<CommentDTO> comments = new ArrayList<>();
 
-    public Post(String id, String title, String content, Date createdAt, Integer likes, AuthorDTO author) {
-        this.id = id;
+    public Post(String postId, String title, String content, Date createdAt, AuthorDTO author) {
+        this.postId = postId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
-        this.likes = likes;
         this.author = author;
     }
 
@@ -49,11 +48,11 @@ public class Post implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return Objects.equals(id, post.id);
+        return Objects.equals(postId, post.postId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(postId);
     }
 }
