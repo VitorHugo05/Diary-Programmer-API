@@ -1,10 +1,10 @@
 package com.vitordev.diaryofaprogrammer.controller;
 
-import com.vitordev.diaryofaprogrammer.domain.Post;
-import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.domain.post.Post;
+import com.vitordev.diaryofaprogrammer.domain.user.User;
+import com.vitordev.diaryofaprogrammer.domain.user.UserUtils;
 import com.vitordev.diaryofaprogrammer.dto.PostDTO;
 import com.vitordev.diaryofaprogrammer.dto.UserDTO;
-import com.vitordev.diaryofaprogrammer.service.TokenService;
 import com.vitordev.diaryofaprogrammer.service.UserServices;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class UserController {
     private UserServices userServices;
 
     @Autowired
-    private TokenService tokenService;
+    private UserUtils userUtils;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> findUsers() {
@@ -71,7 +71,7 @@ public class UserController {
 
     @PutMapping(value = "/{userId}")
     public ResponseEntity<UserDTO> updateData(@PathVariable String userId, @RequestBody UserDTO userDto) {
-        userServices.validateUserDTOFields(userDto);
+        userUtils.validateUserDTOFields(userDto);
 
         User oldUser = userServices.findById(userId);
         if(oldUser == null) {
@@ -79,8 +79,8 @@ public class UserController {
         }
 
         userDto.setUserId(oldUser.getUserId());
-        User newUser = userServices.fromDTO(userDto);
-        userServices.updateData(oldUser, newUser);
+        User newUser = userUtils.fromDTO(userDto);
+        userServices.update(oldUser, newUser);
         User user = userServices.save(newUser);
 
         return ResponseEntity.ok().body(new UserDTO(user));

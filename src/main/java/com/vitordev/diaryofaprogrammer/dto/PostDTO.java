@@ -1,7 +1,7 @@
 package com.vitordev.diaryofaprogrammer.dto;
 
 
-import com.vitordev.diaryofaprogrammer.domain.Post;
+import com.vitordev.diaryofaprogrammer.domain.post.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +26,7 @@ public class PostDTO implements Serializable {
     private Integer likes;
 
     private AuthorDTO author;
-    private List<CommentDTO> comments;
+    private List<CommentDTO> comments = new ArrayList<>();
 
     public PostDTO(Post post) {
         this.postId = post.getPostId();
@@ -36,5 +36,6 @@ public class PostDTO implements Serializable {
         this.author = post.getAuthor();
         this.comments = post.getComments();
         this.likes = post.getLikedUsers().size();
+        this.comments.addAll(post.getComments());
     }
 }

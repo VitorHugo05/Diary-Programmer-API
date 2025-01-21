@@ -1,18 +1,15 @@
 package com.vitordev.diaryofaprogrammer.service;
 
-import com.vitordev.diaryofaprogrammer.domain.Post;
-import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.domain.post.Post;
+import com.vitordev.diaryofaprogrammer.domain.user.User;
 import com.vitordev.diaryofaprogrammer.dto.AuthorDTO;
 import com.vitordev.diaryofaprogrammer.dto.CommentDTO;
-import com.vitordev.diaryofaprogrammer.dto.PostDTO;
 import com.vitordev.diaryofaprogrammer.repository.PostRepository;
-import com.vitordev.diaryofaprogrammer.service.exceptions.MissingFieldException;
+import com.vitordev.diaryofaprogrammer.service.exceptions.AccessDeniedException;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,9 +41,19 @@ public class PostService {
     }
 
     public void addComment(String postId, CommentDTO comment) {
-        Optional<Post> post = postRepository.findById(postId);
-        post.get().getComments().add(comment);
-        postRepository.save(post.get());
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ObjectNotFoundException("Post not found"));
+        try {
+            post.getComments().add(comment);
+        } catch (ObjectNotFoundException e) {
+            throw new ObjectNotFoundException("Comment not found");
+        }
+        postRepository.save(post);
+    }
+
+    public void deleteComment(String postId, CommentDTO commentDto) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ObjectNotFoundException("Post not found"));
+        post.getComments().remove(commentDto);
+        postRepository.save(post);
     }
 
     public Post likeOrDislikePost(String postId, String userId) {
@@ -66,7 +73,7 @@ public class PostService {
         List<String> likedUserIds = post.getLikedUsers();
 
         return likedUserIds.stream()
-                .map(userService::findById)
+                .map(x -> userService.findById(x))
                 .map(AuthorDTO::new)
                 .collect(Collectors.toList());
     }
@@ -75,93 +82,24 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public Post fromDTO(PostDTO postDTO) {
-        Post post = new Post();
-
-        if (postDTO.getCreatedAt() == null) {
-            post.setCreatedAt(new Date());
-        } else {
-            post.setCreatedAt(postDTO.getCreatedAt());
-        }
-
-        if (postDTO.getPostId() != null) {
-            post.setPostId(postDTO.getPostId());
-        }
-
-        if (postDTO.getTitle() != null) {
-            post.setTitle(postDTO.getTitle());
-        }
-
-        if (postDTO.getContent() != null) {
-            post.setContent(postDTO.getContent());
-        }
-
-        if (postDTO.getAuthor() != null) {
-            AuthorDTO authorDTO = postDTO.getAuthor();
-            post.setAuthor(authorDTO);
-        }
-
-        post.setLikedUsers(new ArrayList<>());
-
-        return post;
-    }
-
-
-    public Post updateData(Post oldPost, Post newPost) {
-        if (newPost.getTitle() != null) {
-            oldPost.setTitle(newPost.getTitle());
-        }
-
-        if (newPost.getContent() != null) {
-            oldPost.setContent(newPost.getContent());
-        }
-
-        if (newPost.getCreatedAt() != null) {
-            oldPost.setCreatedAt(newPost.getCreatedAt());
-        }
-
-        if (newPost.getAuthor() != null) {
-            oldPost.setAuthor(newPost.getAuthor());
-        }
-
-        if (newPost.getComments() != null) {
-            oldPost.setComments(newPost.getComments());
-        }
+    public void update(Post oldPost, Post newPost) {
+        oldPost.setTitle(newPost.getTitle() != null ? newPost.getTitle() : oldPost.getTitle());
+        oldPost.setContent(newPost.getContent() != null ? newPost.getContent() : oldPost.getContent());
+        oldPost.setCreatedAt(newPost.getCreatedAt() != null ? newPost.getCreatedAt() : oldPost.getCreatedAt());
+        oldPost.setAuthor(newPost.getAuthor() != null ? newPost.getAuthor() : oldPost.getAuthor());
+        oldPost.setComments(newPost.getComments() != null ? newPost.getComments() : oldPost.getComments());
 
         if (newPost.getLikedUsers() != null) {
-             oldPost.getLikedUsers().addAll(newPost.getLikedUsers());
+            oldPost.getLikedUsers().addAll(newPost.getLikedUsers());
         }
-
-        return oldPost;
     }
 
-    public void validatePostFields(PostDTO postDTO) {
-        if (postDTO == null) {
-            throw new MissingFieldException("O objeto 'PostDTO' não pode ser nulo.");
-        }
+    public void validateOwnership(String postId, String username) {
+        var post = postRepository.findById(postId)
+                .orElseThrow(() -> new ObjectNotFoundException("Post not found"));
 
-        if (postDTO.getTitle() == null || postDTO.getTitle().trim().isEmpty()) {
-            throw new MissingFieldException("O campo 'title' é obrigatório e não pode estar vazio.");
-        }
-
-        if (postDTO.getContent() == null || postDTO.getContent().trim().isEmpty()) {
-            throw new MissingFieldException("O campo 'content' é obrigatório e não pode estar vazio.");
-        }
-
-        if (postDTO.getCreatedAt() == null) {
-            throw new MissingFieldException("O campo 'createdAt' é obrigatório.");
-        }
-
-        if (postDTO.getAuthor() == null) {
-            throw new MissingFieldException("O campo 'author' é obrigatório.");
-        }
-
-        if (postDTO.getAuthor().getId() == null || postDTO.getAuthor().getId().trim().isEmpty()) {
-            throw new MissingFieldException("O campo 'author.postId' é obrigatório e não pode estar vazio.");
-        }
-
-        if (postDTO.getAuthor().getName() == null || postDTO.getAuthor().getName().trim().isEmpty()) {
-            throw new MissingFieldException("O campo 'author.name' é obrigatório e não pode estar vazio.");
+        if (!post.getAuthor().getName().equals(username)) {
+            throw new AccessDeniedException("You are not allowed to delete this post");
         }
     }
 }

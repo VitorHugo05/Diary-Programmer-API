@@ -1,5 +1,7 @@
 package com.vitordev.diaryofaprogrammer.controller.exception;
 
+import com.vitordev.diaryofaprogrammer.service.exceptions.AccessDeniedException;
+import com.vitordev.diaryofaprogrammer.service.exceptions.DataAlreadyExistsException;
 import com.vitordev.diaryofaprogrammer.service.exceptions.MissingFieldException;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +32,21 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<StandardError> handleHttpMessageNotReadable(HttpMessageNotReadableException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Corpo da requisição inválido", "O corpo da requisição está vazio ou não é válido.", request.getRequestURI());
+        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Request body is invalid", e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(DataAlreadyExistsException.class)
+    public ResponseEntity<StandardError> dataAlreadyExists(DataAlreadyExistsException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Data already exists", e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<StandardError> accessDenied(DataAlreadyExistsException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Forbidden access", e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 }

@@ -1,7 +1,7 @@
 package com.vitordev.diaryofaprogrammer.dto;
 
 
-import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.domain.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package com.vitordev.diaryofaprogrammer.repository;
 
-import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.domain.user.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

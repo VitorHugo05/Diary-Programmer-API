@@ -1,7 +1,8 @@
 package com.vitordev.diaryofaprogrammer.dto;
 
-import com.vitordev.diaryofaprogrammer.domain.Post;
-import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.domain.post.Post;
+import com.vitordev.diaryofaprogrammer.domain.user.User;
+import com.vitordev.diaryofaprogrammer.domain.user.enums.UserRole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +26,7 @@ public class UserDTO implements Serializable {
     private String email;
     private Date createdAt;
     private Date birthdate;
-    private Integer likes;
+    private UserRole role;
 
     private List<String> posts = new ArrayList<>();
 
@@ -35,9 +36,9 @@ public class UserDTO implements Serializable {
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
         this.birthdate = user.getBirthdate();
-        this.likes = user.getLikes();
         this.posts = user.getPosts().stream()
                 .map(Post::getPostId)
                 .collect(Collectors.toList());
+        this.role = user.getRole();
     }
 }

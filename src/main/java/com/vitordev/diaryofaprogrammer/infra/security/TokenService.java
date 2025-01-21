@@ -1,10 +1,10 @@
-package com.vitordev.diaryofaprogrammer.service;
+package com.vitordev.diaryofaprogrammer.infra.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.vitordev.diaryofaprogrammer.domain.User;
+import com.vitordev.diaryofaprogrammer.domain.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,34 +18,32 @@ public class TokenService {
     private String secret;
 
     public String generateToken(User user) {
-        try {
+        try{
             Algorithm algorithm = Algorithm.HMAC256(secret);
-
             return JWT.create()
-                    .withIssuer("diaryprogrammer")
-                    .withClaim("email",user.getEmail())
-                    .withClaim("id", user.getUserId())
-                    .withExpiresAt(this.generateExpireTime())
+                    .withIssuer("todo-list")
+                    .withSubject(user.getUserId())
+                    .withExpiresAt(generateExpirationTime())
                     .sign(algorithm);
-        } catch (JWTCreationException e) {
-            throw new RuntimeException(e);
+        } catch (JWTCreationException e){
+            throw new RuntimeException("Error while generating token", e);
         }
     }
 
-    public String validateToken(String token){
-        try {
+    public String verifyToken(String token) {
+        try{
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
-                    .withIssuer("login-auth-api")
+                    .withIssuer("todo-list")
                     .build()
                     .verify(token)
                     .getSubject();
-        } catch (JWTVerificationException exception) {
-            return null;
+        }catch (JWTVerificationException e){
+            return "";
         }
     }
 
-    private Instant generateExpireTime() {
-        return LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("-03:00"));
+    private Instant generateExpirationTime(){
+        return LocalDateTime.now().plusDays(2).toInstant(ZoneOffset.of("-03:00"));
     }
 }

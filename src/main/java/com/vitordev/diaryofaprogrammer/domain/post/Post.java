@@ -1,4 +1,4 @@
-package com.vitordev.diaryofaprogrammer.domain;
+package com.vitordev.diaryofaprogrammer.domain.post;
 
 import com.vitordev.diaryofaprogrammer.dto.AuthorDTO;
 import com.vitordev.diaryofaprogrammer.dto.CommentDTO;

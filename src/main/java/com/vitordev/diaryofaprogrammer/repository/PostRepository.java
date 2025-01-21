@@ -1,6 +1,6 @@
 package com.vitordev.diaryofaprogrammer.repository;
 
-import com.vitordev.diaryofaprogrammer.domain.Post;
+import com.vitordev.diaryofaprogrammer.domain.post.Post;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

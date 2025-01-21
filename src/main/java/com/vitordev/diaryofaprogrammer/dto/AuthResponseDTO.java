@@ -13,11 +13,9 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseRegisterDTO implements Serializable {
+public class AuthResponseDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String id;
     private String token;
-
 }

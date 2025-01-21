@@ -18,6 +18,7 @@ public class CommentDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    private String commentId;
     private String content;
     private Date createdAt;
     private AuthorDTO author;
