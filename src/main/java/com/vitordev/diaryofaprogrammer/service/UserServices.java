@@ -2,8 +2,10 @@ package com.vitordev.diaryofaprogrammer.service;
 
 import com.vitordev.diaryofaprogrammer.domain.user.User;
 import com.vitordev.diaryofaprogrammer.repository.UserRepository;
+import com.vitordev.diaryofaprogrammer.service.exceptions.AccessDeniedException;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +46,13 @@ public class UserServices {
         existingUser.setName(updatedUser.getName() != null ? updatedUser.getName() : existingUser.getName());
         existingUser.setEmail(updatedUser.getEmail() != null ? updatedUser.getEmail() : existingUser.getEmail());
         existingUser.setBirthdate(updatedUser.getBirthdate() != null ? updatedUser.getBirthdate() : existingUser.getBirthdate());
+    }
+
+    public void validateOwner(String userId, String username) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException("User not found"));
+        if(!user.getUsername().equals(username)) {
+            throw new AccessDeniedException("You are not allowed to update this user");
+        }
     }
 }
 

@@ -9,6 +9,8 @@ import com.vitordev.diaryofaprogrammer.service.UserServices;
 import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -70,19 +72,15 @@ public class UserController {
     }
 
     @PutMapping(value = "/{userId}")
-    public ResponseEntity<UserDTO> updateData(@PathVariable String userId, @RequestBody UserDTO userDto) {
+    public ResponseEntity<UserDTO> updateData(@PathVariable String userId, @RequestBody UserDTO userDto, @AuthenticationPrincipal UserDetails userDetails) {
         userUtils.validateUserDTOFields(userDto);
-
+        userServices.validateOwner(userId, userDetails.getUsername());
         User oldUser = userServices.findById(userId);
-        if(oldUser == null) {
-            throw new ObjectNotFoundException("User not found");
-        }
+        userDto.setUserId(oldUser .getUserId());
+        User newUser  = userUtils.fromDTO(userDto);
+        userServices.update(oldUser , newUser );
+        User updatedUser  = userServices.save(newUser );
 
-        userDto.setUserId(oldUser.getUserId());
-        User newUser = userUtils.fromDTO(userDto);
-        userServices.update(oldUser, newUser);
-        User user = userServices.save(newUser);
-
-        return ResponseEntity.ok().body(new UserDTO(user));
+        return ResponseEntity.ok().body(new UserDTO(updatedUser));
     }
 }

@@ -104,9 +104,6 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    /*
-        /api/posts/{postId}/likes?userId={userId}
-    */
     @PostMapping(value = "/{postId}/likes")
     public ResponseEntity<PostDTO> likePost(@PathVariable String postId, @RequestParam(value = "userId", defaultValue = "") String userId) {
         Post updatedPost = postService.likeOrDislikePost(postId, userId);

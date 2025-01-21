@@ -1,6 +1,8 @@
 package com.vitordev.diaryofaprogrammer.infra.security;
 
 import com.vitordev.diaryofaprogrammer.repository.UserRepository;
+import com.vitordev.diaryofaprogrammer.service.exceptions.AccessDeniedException;
+import com.vitordev.diaryofaprogrammer.service.exceptions.ObjectNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +29,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoveryToken(request);
         if (token != null) {
             var subject = tokenService.verifyToken(token);
-            UserDetails user = userRepository.findById(subject).orElse(null);
-
+            UserDetails user = userRepository.findById(subject).orElseThrow(() -> new ObjectNotFoundException("User not found"));
             var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
@@ -38,6 +39,9 @@ public class SecurityFilter extends OncePerRequestFilter {
     private String recoveryToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
         if (authHeader == null) return null;
+        if (!authHeader.startsWith("Bearer ")) {
+            throw new AccessDeniedException("Authorization header must start with 'Bearer '");
+        }
         return authHeader.replace("Bearer ", "");
     }
 }
